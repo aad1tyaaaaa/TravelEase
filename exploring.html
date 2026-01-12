@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explore Destinations | Travelease</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/feather-icons"></script>
+    <style>
+        /* Define the custom color palette for easy use */
+        :root {
+            --cyan: #00f5d4;
+            --magenta: #9b5de5;
+            --dark: #0f172a;
+            --dark-light: #1e293b;
+            --white: #f8fafc;
+            --gray: #94a3b8;
+            /* For the spotlight effect */
+            --spotlight-x: 50%;
+            --spotlight-y: 50%;
+        }
+
+        /* Apply base styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark);
+            color: var(--white);
+            /* NEW: Spotlight background effect */
+            background-image: radial-gradient(
+                circle at var(--spotlight-x) var(--spotlight-y),
+                rgba(30, 41, 59, 0.8),
+                transparent 40%
+            );
+            transition: background 0.1s ease-out;
+        }
+        
+        /* The visible cursor dot */
+        #cursor-dot {
+            width: 20px;
+            height: 20px;
+            background-color: var(--cyan);
+            border-radius: 50%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.1s ease-out;
+            box-shadow: 0 0 15px var(--cyan), 0 0 25px var(--cyan);
+        }
+
+        /* Custom gradient for the main heading */
+        .text-gradient {
+            background: linear-gradient(45deg, var(--cyan), var(--magenta));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+            /* NEW: Subtle glow animation */
+            animation: glow 5s ease-in-out infinite;
+        }
+        
+        @keyframes glow {
+            0%, 100% { filter: drop-shadow(0 0 5px var(--cyan)); }
+            50% { filter: drop-shadow(0 0 15px var(--magenta)); }
+        }
+        
+        /* Custom button styling */
+        .btn-primary {
+            background-color: var(--cyan);
+            color: var(--dark);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 245, 212, 0.15);
+        }
+
+        /* Search input styling */
+        .search-input {
+            background-color: var(--dark-light);
+            border: 1px solid #334155; /* A slightly lighter border */
+            color: var(--white);
+        }
+        .search-input::placeholder {
+            color: var(--gray);
+        }
+        .search-input:focus {
+            outline: none;
+            border-color: var(--cyan);
+            box-shadow: 0 0 0 2px rgba(0, 245, 212, 0.3);
+        }
+
+        /* Styles for the 3D tilt card effect */
+        .tilt-card {
+            transform-style: preserve-3d;
+            transform: perspective(1000px);
+            /* NEW: Initial state for load-in animation */
+            opacity: 0;
+            transform: scale(0.95) translateY(20px);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        }
+
+        .tilt-card.is-visible {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+
+        .tilt-card .card-content {
+            transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, filter 0.2s ease-out, opacity 0.2s ease-out;
+            transform-style: preserve-3d;
+            position: relative;
+            z-index: 1;
+            background-color: var(--dark-light);
+            /* The rounded corners are now only visible on hover when the card scales up */
+        }
+
+        /* The glare effect that follows the mouse */
+        .tilt-card .glare {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 70%);
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
+            pointer-events: none;
+            mix-blend-mode: screen;
+        }
+    </style>
+</head>
+<body class="antialiased">
+    
+    <!-- NEW: Custom cursor dot -->
+    <div id="cursor-dot"></div>
+
+    <!-- NAVBAR from index.html -->
+    <header id="header" class="fixed top-0 left-0 w-full z-50 transition-all duration-300">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center bg-slate-900/50 backdrop-blur-lg mt-4 rounded-full border border-slate-700/50">
+            <a href="#" class="text-3xl font-bold text-gradient hover:opacity-80 transition-opacity">TravelEase</a>
+            <div class="hidden lg:flex items-center space-x-8 text-base font-medium">
+                <a href="index.html#home" class="text-white hover:text-cyan-300 transition-colors">Home</a>
+                <a href="#destinations" class="text-white hover:text-cyan-300 transition-colors">Destinations</a>
+                <a href="#how-it-works" class="text-white hover:text-cyan-300 transition-colors">Process</a>
+                <a href="travel-tips.html" class="text-white hover:text-cyan-300 transition-colors">Travel Tips</a>
+                <a href="payment.html" class="text-white hover:text-cyan-300 transition-colors">Payment</a>
+                <a href="bookings.html" class="text-white hover:text-cyan-300 transition-colors">Bookings</a>
+                <a href="#testimonials" class="text-white hover:text-cyan-300 transition-colors">Reviews</a>
+            </div>
+            <div class="hidden lg:flex items-center space-x-4">
+                <a href="login.html" class="text-base text-white hover:text-cyan-300 transition-colors">Login</a>
+                <a href="#" class="bg-gradient-to-r from-cyan-400 to-magenta text-black font-bold py-3 px-6 rounded-full transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-cyan-400/30">
+                    Plan My Trip
+                </a>
+            </div>
+            <button id="mobile-menu-button" class="lg:hidden text-white">
+                <i data-feather="menu"></i>
+            </button>
+        </nav>
+        <div id="mobile-menu" class="lg:hidden fixed top-20 left-4 right-4 glass-card transform scale-y-0 origin-top transition-transform duration-300 z-40">
+            <div class="flex flex-col space-y-4 p-6 text-center">
+                <a href="index.html" class="text-white hover:text-cyan-300">Home</a>
+                <a href="destinations.html" class="text-white hover:text-cyan-300">Destinations</a>
+                <a href="#how-it-works" class="text-white hover:text-cyan-300">Process</a>
+                <a href="travel-tips.html" class="text-white hover:text-cyan-300">Travel Tips</a>
+                <a href="payment.html" class="text-white hover:text-cyan-300">Payment</a>
+                <a href="bookings.html" class="text-white hover:text-cyan-300">Bookings</a>
+                <a href="#testimonials" class="text-white hover:text-cyan-300">Reviews</a>
+                <hr class="border-slate-700"/>
+                <a href="login.html" class="text-white hover:text-cyan-300">Login</a>
+                <a href="#" class="bg-gradient-to-r from-cyan-400 to-magenta text-black font-bold py-3 px-6 rounded-full">Plan My Trip</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-7 sm:px-6 lg:px-8 py-20 md:py-20">
+        
+        <!-- Header Section -->
+        <header class="text-center mb-12 md:mb-16">
+            <h1 class="text-5xl md:text-7xl font-black text-gradient leading-tight">TravelEase</h1>
+            <p class="mt-4 text-lg md:text-xl text-gray-400 max-w-2xl mx-auto">Discover your next adventure. The world is waiting.</p>
+        </header>
+
+        <!-- Search and Filter Bar -->
+        <div class="mb-12 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <input type="text" id="search-input" placeholder="Search for a destination (e.g., 'Paris')" class="search-input w-full max-w-md px-4 py-3 rounded-md text-lg focus:ring-2 focus:ring-cyan-400">
+            <button id="search-button" class="btn-primary font-bold px-6 py-3 rounded-md w-full sm:w-auto text-lg">Search</button>
+        </div>
+
+        <!-- Destinations Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4" id="destinations-grid">
+
+        </div>
+    </div>
+
+    <script>
+        // --- Feather Icons Initialization ---
+        feather.replace();
+
+        // Array of destinations to create cards for
+        const destinations = [
+            { name: "Bora Bora", region: "French Polynesia", video: "bora.mp4" },
+            { name: "Swiss Alps", region: "Switzerland", video: "alps.mp4" },
+            { name: "Kyoto", region: "Japan", video: "kyoto.mp4" },
+            { name: "Santorini", region: "Greece" },
+            { name: "Maldives", region: "South Asia" },
+            { name: "Banff National Park", region: "Canada" },
+            { name: "Rome", region: "Italy" },
+            { name: "Machu Picchu", region: "Peru" },
+            { name: "Paris", region: "France" },
+            { name: "Patagonia", region: "Chile/Argentina" },
+            { name: "Amalfi Coast", region: "Italy" },
+            { name: "Serengeti", region: "Tanzania" },
+            { name: "Bali", region: "Indonesia" },
+            { name: "Mount Fuji", region: "Japan" },
+            { name: "New York City", region: "USA" },
+            { name: "Petra", region: "Jordan" },
+            { name: "Iceland", region: "Northern Lights" },
+            { name: "Great Wall of China", region: "China" },
+            { name: "Venice", region: "Italy" },
+            { name: "Yosemite", region: "USA" },
+            { name: "Dubai", region: "UAE" },
+            { name: "Cappadocia", region: "Turkey" },
+            { name: "Prague", region: "Czech Republic" },
+            { name: "Norwegian Fjords", region: "Norway" },
+            { name: "Tokyo", region: "Japan" },
+            { name: "Galapagos Islands", region: "Ecuador" },
+            { name: "Sydney", region: "Australia" },
+            { name: "Cairo", region: "Egypt" },
+            { name: "Rio de Janeiro", region: "Brazil" },
+            { name: "London", region: "United Kingdom" },
+            { name: "Ha Long Bay", region: "Vietnam" },
+            { name: "Zermatt", region: "Switzerland" },
+            { name: "Phuket", region: "Thailand" },
+            { name: "Lisbon", region: "Portugal" },
+            { name: "Fiordland", region: "New Zealand" },
+            { name: "Singapore", region: "Southeast Asia" }
+        ];
+
+        const grid = document.getElementById('destinations-grid');
+
+        // Function to generate cards
+        function generateCards(filteredDestinations) {
+            let cardHTML = '';
+            filteredDestinations.forEach(dest => {
+                const placeholdName = dest.name.replace(/ /g, '+');
+                const mediaElement = dest.video
+                    ? `<video src="${dest.video}" autoplay muted loop class="absolute inset-0 w-full h-full object-cover"></video>`
+                    : `<img src="https://placehold.co/600x800/1e293b/f8fafc?text=${placeholdName}" alt="${dest.name}" class="absolute inset-0 w-full h-full object-cover">`;
+                cardHTML += `
+                    <div class="tilt-card h-80">
+                        <div class="card-content w-full h-full shadow-lg overflow-hidden relative flex flex-col justify-end rounded-lg">
+                            ${mediaElement}
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+                            <div class="relative p-4 text-white z-10">
+                                <h3 class="text-xl font-bold">${dest.name}</h3>
+                                <p class="text-sm text-gray-300">${dest.region}</p>
+                            </div>
+                            <div class="glare"></div>
+                        </div>
+                    </div>
+                `;
+            });
+            grid.innerHTML = cardHTML;
+        }
+
+        // Function to filter destinations
+        function filterDestinations(query) {
+            if (!query) return destinations;
+            return destinations.filter(dest =>
+                dest.name.toLowerCase().includes(query.toLowerCase()) ||
+                dest.region.toLowerCase().includes(query.toLowerCase())
+            );
+        }
+
+        // Initial load
+        generateCards(destinations);
+
+        // Search functionality
+        const searchInput = document.getElementById('search-input');
+        const searchButton = document.getElementById('search-button');
+
+        searchButton.addEventListener('click', () => {
+            const query = searchInput.value.trim();
+            const filtered = filterDestinations(query);
+            generateCards(filtered);
+            // Re-apply animations after generating new cards
+            setTimeout(() => {
+                const cards = document.querySelectorAll('.tilt-card');
+                cards.forEach((card, index) => {
+                    setTimeout(() => {
+                        card.classList.add('is-visible');
+                    }, 100 * index);
+                });
+            }, 100);
+        });
+
+        // Optional: Live search on input
+        searchInput.addEventListener('input', () => {
+            const query = searchInput.value.trim();
+            const filtered = filterDestinations(query);
+            generateCards(filtered);
+            // Re-apply animations
+            setTimeout(() => {
+                const cards = document.querySelectorAll('.tilt-card');
+                cards.forEach((card, index) => {
+                    setTimeout(() => {
+                        card.classList.add('is-visible');
+                    }, 100 * index);
+                });
+            }, 100);
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Feather Icons Initialization ---
+            feather.replace();
+
+            // --- Mobile Menu Toggle ---
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            mobileMenuButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                mobileMenu.classList.toggle('scale-y-0');
+                mobileMenu.classList.toggle('scale-y-100');
+            });
+
+            // Close menu when clicking a link inside it or outside
+            document.addEventListener('click', (e) => {
+                 if (!mobileMenu.contains(e.target) && !mobileMenuButton.contains(e.target)) {
+                    mobileMenu.classList.add('scale-y-0');
+                    mobileMenu.classList.remove('scale-y-100');
+                 }
+            });
+
+            // --- NEW: Staggered load-in animation for cards ---
+            const cards = document.querySelectorAll('.tilt-card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.classList.add('is-visible');
+                }, 100 * index);
+            });
+            
+            // --- NEW: Spotlight and Custom Cursor Logic ---
+            const cursorDot = document.getElementById('cursor-dot');
+            const root = document.documentElement; // To set CSS variables
+
+            window.addEventListener('mousemove', e => {
+                // Update CSS variables for the spotlight background
+                root.style.setProperty('--spotlight-x', `${e.clientX}px`);
+                root.style.setProperty('--spotlight-y', `${e.clientY}px`);
+
+                // Move the custom cursor dot
+                cursorDot.style.transform = `translate(${e.clientX - 10}px, ${e.clientY - 10}px)`;
+            });
+
+            // --- Existing Tilt and Focus Logic ---
+            const gridContainer = document.querySelector('.grid');
+            const tiltCards = document.querySelectorAll('.tilt-card');
+
+            const maxTilt = 10; 
+
+            tiltCards.forEach(hoveredCard => {
+                const hoveredCardContent = hoveredCard.querySelector('.card-content');
+                const glare = hoveredCard.querySelector('.glare');
+
+                hoveredCard.addEventListener('mousemove', (e) => {
+                    const rect = hoveredCard.getBoundingClientRect();
+                    const mouseX = e.clientX - rect.left;
+                    const mouseY = e.clientY - rect.top;
+                    const rotateX = ((mouseY / rect.height) - 0.5) * -maxTilt;
+                    const rotateY = ((mouseX / rect.width) - 0.5) * maxTilt;
+
+                    hoveredCardContent.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.1, 1.1, 1.1)`;
+                    hoveredCardContent.style.boxShadow = `0px 20px 40px -10px rgba(0, 0, 0, 0.5)`;
+                    hoveredCardContent.style.zIndex = '10';
+                    hoveredCardContent.style.filter = 'blur(0px)';
+                    hoveredCardContent.style.opacity = '1';
+
+                    glare.style.opacity = '1';
+                    glare.style.transform = `translate(${mouseX - (rect.width / 2)}px, ${mouseY - (rect.height / 2)}px)`;
+
+                    tiltCards.forEach(otherCard => {
+                        if (otherCard !== hoveredCard) {
+                            const otherCardContent = otherCard.querySelector('.card-content');
+                            otherCardContent.style.transform = 'scale3d(0.95, 0.95, 0.95)';
+                            otherCardContent.style.filter = 'blur(2px)';
+                            otherCardContent.style.opacity = '0.5';
+                            otherCardContent.style.zIndex = '1';
+                        }
+                    });
+                });
+
+                hoveredCard.addEventListener('mouseleave', () => {
+                    glare.style.opacity = '0';
+                });
+            });
+
+            gridContainer.addEventListener('mouseleave', () => {
+                tiltCards.forEach(cardToReset => {
+                    const cardContent = cardToReset.querySelector('.card-content');
+                    cardContent.style.transform = 'rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+                    cardContent.style.boxShadow = '0px 0px 0px rgba(0, 0, 0, 0)';
+                    cardContent.style.zIndex = '1';
+                    cardContent.style.filter = 'blur(0px)';
+                    cardContent.style.opacity = '1';
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>
+

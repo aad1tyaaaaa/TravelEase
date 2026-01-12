@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TravelEase ✈️ - Your Adventure Awaits</title>
+    
+    <link rel="icon" href="https://img.icons8.com/color/48/000000/paper-plane.png" type="image/x-icon">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrambleTextPlugin.min.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
+    <script src="https://unpkg.com/feather-icons"></script>
+
+    <style>
+        /* --- Custom Properties for Theming --- */
+        :root {
+            --cyan: #00f5d4;
+            --magenta: #9b5de5;
+            --dark: #0f172a; /* Switched to a deep navy blue */
+            --dark-light: #1e293b;
+            --white: #f8fafc;
+            --gray: #94a3b8;
+        }
+
+        /* --- Base Body & Scrollbar Styles --- */
+        body {
+            background-color: var(--dark);
+            color: var(--gray);
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--dark-light); }
+        ::-webkit-scrollbar-thumb { background: var(--cyan); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--magenta); }
+
+        /* --- Animated Gradient Background --- */
+        .animated-gradient-bg {
+            background: linear-gradient(-45deg, #0f172a, #131c31, #0f172a, #1e293b);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* --- Enhanced Glassmorphism Effect --- */
+        .glass-card {
+            background: rgba(30, 41, 59, 0.5); /* Darker glass */
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem; /* More rounded */
+            transition: all 0.3s ease-in-out;
+        }
+        .glass-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: rgba(0, 245, 212, 0.5);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* --- Neon Button & Text Effects --- */
+        .neon-glow {
+            transition: all 0.3s ease;
+            box-shadow: 0 0 5px var(--cyan), 0 0 10px var(--cyan);
+        }
+        .neon-glow:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px var(--cyan), 0 0 20px var(--cyan), 0 0 30px var(--cyan);
+        }
+        .text-gradient {
+            background: linear-gradient(45deg, var(--cyan), var(--magenta));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* --- Hero Section & Floating Animations --- */
+        .hero-bg {
+            background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+        }
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-25px) rotate(0deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+        .float-animation {
+            animation: float 8s ease-in-out infinite;
+        }
+        .hero-text-shadow {
+            text-shadow: 0 0 20px rgba(0, 245, 212, 0.5);
+        }
+
+        /* --- Loader Styles --- */
+        #loader {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--dark);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease-out;
+        }
+        .loader-plane {
+            font-size: 5rem;
+            color: var(--cyan);
+            animation: fly 1.5s ease-in-out infinite;
+        }
+        @keyframes fly {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(10deg); }
+        }
+
+        /* --- GSAP Animation Initial State --- */
+        .reveal {
+            opacity: 0;
+            transform: translateY(50px);
+        }
+
+        /* --- Custom Cursor Effect --- */
+        #cursor-dot {
+            width: 30px;
+            height: 30px;
+            background-color: var(--cyan);
+            border-radius: 50%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.1s ease-out;
+            box-shadow: 0 0 15px var(--cyan), 0 0 25px var(--cyan), 0 0 35px var(--white);
+        }
+    </style>
+</head>
+<body class="animated-gradient-bg">
+
+    <div id="loader">
+        <div class="loader-plane">✈️</div>
+    </div>
+
+    <!-- Custom Cursor Dot -->
+    <div id="cursor-dot"></div>
+
+    <header id="header" class="fixed top-0 left-0 w-full z-50 transition-all duration-300">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center bg-slate-900/50 backdrop-blur-lg mt-4 rounded-full border border-slate-700/50">
+            <a href="#" class="text-3xl font-bold text-gradient hover:opacity-80 transition-opacity">TravelEase</a>
+            <div class="hidden lg:flex items-center space-x-8 text-base font-medium">
+                <a href="#home" class="text-white hover:text-cyan-300 transition-colors">Home</a>
+                <a href="#destinations" class="text-white hover:text-cyan-300 transition-colors">Destinations</a>
+                <a href="#how-it-works" class="text-white hover:text-cyan-300 transition-colors">Process</a>
+                <a href="travel-tips.html" class="text-white hover:text-cyan-300 transition-colors">Travel Tips</a>
+                <a href="payment.html" class="text-white hover:text-cyan-300 transition-colors">Payment</a>
+                <a href="bookings.html" class="text-white hover:text-cyan-300 transition-colors">Bookings</a>
+                <a href="#testimonials" class="text-white hover:text-cyan-300 transition-colors">Reviews</a>
+            </div>
+            <div class="hidden lg:flex items-center space-x-4">
+                <a href="login.html" class="text-base text-white hover:text-cyan-300 transition-colors">Login</a>
+                <a href="trip-planner.html" class="bg-gradient-to-r from-cyan-400 to-magenta text-black font-bold py-3 px-6 rounded-full transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-cyan-400/30">
+                    Plan My Trip
+                </a>
+            </div>
+            <button id="mobile-menu-button" class="lg:hidden text-white">
+                <i data-feather="menu"></i>
+            </button>
+        </nav>
+        <div id="mobile-menu" class="lg:hidden fixed top-20 left-4 right-4 glass-card transform scale-y-0 origin-top transition-transform duration-300 z-40">
+            <div class="flex flex-col space-y-4 p-6 text-center">
+                <a href="#home" class="text-white hover:text-cyan-300">Home</a>
+                <a href="#destinations" class="text-white hover:text-cyan-300">Destinations</a>
+                <a href="#how-it-works" class="text-white hover:text-cyan-300">Process</a>
+                <a href="travel-tips.html" class="text-white hover:text-cyan-300">Travel Tips</a>
+                <a href="payment.html" class="text-white hover:text-cyan-300">Payment</a>
+                <a href="bookings.html" class="text-white hover:text-cyan-300">Bookings</a>
+                <a href="#testimonials" class="text-white hover:text-cyan-300">Reviews</a>
+                <hr class="border-slate-700"/>
+                <a href="login.html" class="text-white hover:text-cyan-300">Login</a>
+                <a href="trip-planner.html" class="bg-gradient-to-r from-cyan-400 to-magenta text-black font-bold py-3 px-6 rounded-full">Plan My Trip</a>
+            </div>
+        </div>
+    </header>
+
+    <main id="main-content" class="opacity-0">
+        <section id="home" class="relative min-h-screen flex items-center justify-center overflow-hidden hero-bg p-4">
+            <div class="absolute inset-0 bg-black/30"></div>
+            <!-- Top row -->
+            <div class="absolute top-10 right-1/3 text-5xl opacity-25 float-animation" style="animation-delay: 0s;">🌍</div>
+            <div class="absolute top-20 left-10 text-6xl opacity-20 float-animation" style="animation-delay: 1s;">🏔️</div>
+            <div class="absolute top-20 right-1/4 text-7xl opacity-20 float-animation" style="animation-delay: 2s;">🗿</div>
+            <div class="absolute top-1/6 left-1/2 text-4xl opacity-25 float-animation" style="animation-delay: 3s;">🛩️</div>
+            <div class="absolute top-1/4 left-1/5 text-4xl opacity-15 float-animation" style="animation-delay: 4s;">🛶</div>
+            <div class="absolute top-1/4 right-1/2 text-5xl opacity-15 float-animation" style="animation-delay: 5s;">🏰</div>
+            <div class="absolute top-1/3 left-1/4 text-5xl opacity-10 float-animation" style="animation-delay: 6s;">🏛️</div>
+            <div class="absolute top-1/3 right-10 text-8xl opacity-10 float-animation" style="animation-delay: 7s;">🏝️</div>
+            <div class="absolute top-40 left-1/4 text-7xl opacity-10 float-animation" style="animation-delay: 8s;">🌅</div>
+            <div class="absolute top-1/2 left-1/3 text-4xl opacity-15 float-animation" style="animation-delay: 9s;">✈️</div>
+            <div class="absolute top-1/2 right-1/5 text-3xl opacity-25 float-animation" style="animation-delay: 10s;">🗼</div>
+            <div class="absolute top-2/3 left-10 text-7xl opacity-10 float-animation" style="animation-delay: 11s;">🗻</div>
+            <div class="absolute top-3/4 right-10 text-3xl opacity-20 float-animation" style="animation-delay: 12s;">🚀</div>
+            <div class="absolute top-3/4 right-1/5 text-5xl opacity-20 float-animation" style="animation-delay: 13s;">🌋</div>
+
+            <!-- Bottom row -->
+            <div class="absolute bottom-10 left-1 text-6xl opacity-15 float-animation" style="animation-delay: 14s;">🏖️</div>
+            <div class="absolute bottom-10 right-1/5 text-4xl opacity-25 float-animation" style="animation-delay: 15s;">🌺</div>
+            <div class="absolute bottom-20 left-1/4 text-5xl opacity-20 float-animation" style="animation-delay: 16s;">🏯</div>
+            <div class="absolute bottom-20 left-1/5 text-4xl opacity-20 float-animation" style="animation-delay: 17s;">🌉</div>
+            <div class="absolute bottom-20 right-1/3 text-5xl opacity-15 float-animation" style="animation-delay: 18s;">🏞️</div>
+            <div class="absolute bottom-1/4 left-1/3 text-7xl opacity-15 float-animation" style="animation-delay: 19s;">🏜️</div>
+            <div class="absolute bottom-1/4 right-1/4 text-7xl opacity-10 float-animation" style="animation-delay: 20s;">🗺️</div>
+            <div class="absolute bottom-1/3 left-1/5 text-6xl opacity-10 float-animation" style="animation-delay: 21s;">🏕️</div>
+            <div class="absolute bottom-1/3 right-20 text-4xl opacity-20 float-animation" style="animation-delay: 22s;">🌴</div>
+            <div class="absolute bottom-1/2 left-20 text-6xl opacity-10 float-animation" style="animation-delay: 23s;">🌊</div>
+            <div class="absolute bottom-1/2 right-1/3 text-6xl opacity-15 float-animation" style="animation-delay: 24s;">🌌</div>
+            <div class="absolute bottom-40 right-1/4 text-5xl opacity-20 float-animation" style="animation-delay: 25s;">🗽</div>
+            
+
+            <div class="text-center z-10">
+                <h1 class="text-5xl md:text-7xl lg:text-8xl font-black text-white leading-tight mb-4 hero-text-shadow reveal">
+                    Escape the <span class="text-gradient color-green">Ordinary.</span>
+                </h1>
+                <p class="text-lg md:text-xl text-gray-300 mt-4 max-w-2xl mx-auto reveal" style="transition-delay: 0.2s;">
+                    Your next unforgettable adventure is just a click away. Discover, plan, and book your dream trip with us.
+                </p>
+                <a href="exploring.html" class="bg-gradient-to-r from-cyan-400 to-magenta text-black font-bold py-4 px-10 rounded-full inline-block mt-8 neon-glow reveal" style="transition-delay: 0.4s;">
+                    Start Exploring Now
+                </a>
+            </div>
+        </section>
+
+        <section id="destinations" class="py-24 px-4 container mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-white reveal">Featured Destinations</h2>
+                <p class="text-gray-400 mt-4 max-w-xl mx-auto reveal">Handpicked locations that promise adventure, culture, and relaxation.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="group relative rounded-2xl overflow-hidden h-96 reveal">
+                    <video src="alps.mp4" alt="Swiss Alps" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" autoplay muted loop></video>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 p-6">
+                        <h3 class="text-2xl font-bold text-white">Swiss Alps</h3>
+                        <p class="text-gray-300">Majestic Peaks & Alpine Adventures</p>
+                    </div>
+                </div>
+                <div class="group relative rounded-2xl overflow-hidden h-96 lg:col-span-2 reveal">
+                    <video src="kyoto.mp4" alt="Kyoto, Japan" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" autoplay muted loop></video>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 p-6">
+                        <h3 class="text-2xl font-bold text-white">Kyoto, Japan</h3>
+                        <p class="text-gray-300">Ancient Temples & Serene Gardens</p>
+                    </div>
+                </div>
+                <div class="group relative rounded-2xl overflow-hidden h-96 reveal">
+                    <video src="bora.mp4" alt="Bora Bora" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" autoplay muted loop></video>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 p-6">
+                        <h3 class="text-2xl font-bold text-white">Bora Bora</h3>
+                        <p class="text-gray-300">Overwater Bungalows & Turquoise Lagoons</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="how-it-works" class="py-24 px-4 container mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-white reveal">Your Journey, Simplified</h2>
+                <p class="text-gray-400 mt-4 max-w-xl mx-auto reveal">Four easy steps to your next great escape.</p>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="glass-card p-8 text-center reveal">
+                    <div class="bg-slate-700/50 w-20 h-20 rounded-2xl mx-auto flex items-center justify-center mb-6"><i data-feather="search" class="w-10 h-10 text-cyan-400"></i></div>
+                    <h3 class="text-xl font-bold text-white mb-2">1. Discover</h3>
+                    <p>Explore curated destinations and find your inspiration.</p>
+                </div>
+                <div class="glass-card p-8 text-center reveal">
+                    <div class="bg-slate-700/50 w-20 h-20 rounded-2xl mx-auto flex items-center justify-center mb-6"><i data-feather="edit" class="w-10 h-10 text-cyan-400"></i></div>
+                    <h3 class="text-xl font-bold text-white mb-2">2. Plan</h3>
+                    <p>Customize your itinerary with our easy-to-use trip planner.</p>
+                </div>
+                <div class="glass-card p-8 text-center reveal">
+                    <div class="bg-slate-700/50 w-20 h-20 rounded-2xl mx-auto flex items-center justify-center mb-6"><i data-feather="check-circle" class="w-10 h-10 text-cyan-400"></i></div>
+                    <h3 class="text-xl font-bold text-white mb-2">3. Book</h3>
+                    <p>Securely book flights, hotels, and activities in one place.</p>
+                </div>
+                <div class="glass-card p-8 text-center reveal">
+                    <div class="bg-slate-700/50 w-20 h-20 rounded-2xl mx-auto flex items-center justify-center mb-6"><i data-feather="send" class="w-10 h-10 text-cyan-400"></i></div>
+                    <h3 class="text-xl font-bold text-white mb-2">4. Explore</h3>
+                    <p>Pack your bags and embark on your unforgettable journey!</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="testimonials" class="py-24 px-4 container mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-white reveal">What Our Travelers Say</h2>
+                <p class="text-gray-400 mt-4 max-w-xl mx-auto reveal">Real stories from our amazing community of explorers.</p>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="glass-card p-8 reveal">
+                    <img src="masum.png" alt="User" class="w-16 h-16 rounded-full mb-4 border-2 border-cyan-400">
+                    <p class="text-gray-300 italic mb-4">"TravelEase made planning my solo trip to Japan a breeze. The itinerary was perfect, and their support team was always available. Highly recommend!"</p>
+                    <h4 class="font-bold text-white">Masum Joglekar</h4>
+                    <span class="text-sm text-gray-400">Solo Traveler</span>
+                </div>
+                <div class="glass-card p-8 reveal">
+                    <img src="om.png" alt="User" class="w-16 h-16 rounded-full mb-4 border-2 border-cyan-400">
+                    <p class="text-gray-300 italic mb-4">"We booked our honeymoon through TravelEase, and it was magical. Every detail was taken care of. We just had to show up and enjoy."</p>
+                    <h4 class="font-bold text-white">Om & sydneysweeney</h4>
+                    <span class="text-sm text-gray-400">Newlyweds</span>
+                </div>
+                <div class="glass-card p-8 reveal">
+                    <img src="shanish.webp" alt="User" class="w-16 h-16 rounded-full mb-4 border-2 border-cyan-400">
+                    <p class="text-gray-300 italic mb-4">"As a frequent traveler, I'm impressed by the deals and the seamless booking process. It's my go-to platform for all my travel needs now."</p>
+                    <h4 class="font-bold text-white">Shanish Jain</h4>
+                    <span class="text-sm text-gray-400">Business Traveler</span>
+                </div>
+            </div>
+        </section>
+
+        <section id="newsletter" class="py-24 px-4 container mx-auto">
+            <div class="bg-gradient-to-r from-cyan-500/20 to-magenta/20 p-10 md:p-16 rounded-3xl text-center border border-slate-700 reveal">
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Join Our Adventure Club</h2>
+                <p class="text-gray-300 mb-8 max-w-xl mx-auto">Get exclusive travel deals, tips, and inspiration delivered straight to your inbox. No spam, just wanderlust.</p>
+                <div class="flex flex-col md:flex-row gap-4 max-w-md mx-auto">
+                    <input type="email" placeholder="Enter your email" class="w-full bg-slate-800/50 text-white placeholder-gray-400 px-5 py-3 rounded-full border border-slate-600 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition" disabled>
+                    <a href="subscription.html" class="bg-gradient-to-r from-cyan-400 to-magenta text-black font-bold py-3 px-8 rounded-full hover:scale-105 transition-transform text-center">Subscribe</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-slate-900/50 border-t border-slate-800 text-white py-12 px-4">
+        <div class="container mx-auto">
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold text-gradient mb-4">TravelEase</h3>
+                    <p class="text-gray-400 mb-4 text-sm">Crafting unforgettable travel experiences, one journey at a time.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-cyan-300"><i data-feather="twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-cyan-300"><i data-feather="instagram"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-cyan-300"><i data-feather="facebook"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-cyan-300"><i data-feather="linkedin"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#home" class="text-gray-400 hover:text-cyan-300">Home</a></li>
+                        <li><a href="#destinations" class="text-gray-400 hover:text-cyan-300">Destinations</a></li>
+                        <li><a href="#how-it-works" class="text-gray-400 hover:text-cyan-300">How It Works</a></li>
+                        <li><a href="#testimonials" class="text-gray-400 hover:text-cyan-300">Testimonials</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Services</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="text-gray-400 hover:text-cyan-300">Flight Booking</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-cyan-300">Hotel Reservations</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-cyan-300">Travel Packages</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-cyan-300">24/7 Support</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Contact</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li class="flex items-center gap-2"><i data-feather="mail" class="w-4 h-4 text-cyan-400"></i> support@travelease.com</li>
+                        <li class="flex items-center gap-2"><i data-feather="phone" class="w-4 h-4 text-cyan-400"></i> +1 (555) 123-4567</li>
+                        <li class="flex items-center gap-2"><i data-feather="map-pin" class="w-4 h-4 text-cyan-400"></i> 123 Travel Street, Wanderlust City</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-sm">
+                <p class="text-gray-400">&copy; 2025 TravelEase. All rights reserved. Made with ❤️ for explorers everywhere.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // --- Feather Icons Initialization ---
+        feather.replace();
+
+        // --- Window Load Event ---
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('loader');
+            const mainContent = document.getElementById('main-content');
+            
+            // Fade out loader
+            loader.style.opacity = '0';
+            setTimeout(() => {
+                loader.style.display = 'none';
+                // Fade in main content
+                mainContent.style.transition = 'opacity 0.5s ease-in-out';
+                mainContent.style.opacity = '1';
+            }, 500); // Match CSS transition
+        });
+
+        // --- DOMContentLoaded Event for Animations & Interactions ---
+        document.addEventListener('DOMContentLoaded', () => {
+            gsap.registerPlugin(ScrollTrigger);
+
+            // --- Scramble Text Effect for Main Heading ---
+            const mainHeading = document.querySelector('h1');
+            const originalText = mainHeading.textContent;
+
+            // Use GSAP's ScrambleText plugin for scramble effect on the whole text
+            gsap.to(mainHeading, {
+                duration: 2,
+                text: {
+                    value: originalText,
+                    scrambleText: {
+                        chars: "ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()",
+                        speed: 0.3,
+                        revealDelay: 0.5
+                    }
+                },
+                ease: "power2.inOut"
+            });
+
+            // --- Scroll-Triggered Reveal Animations ---
+            const revealElements = gsap.utils.toArray('.reveal');
+            revealElements.forEach((el) => {
+                gsap.fromTo(el,
+                    { opacity: 0, y: 50 },
+                    {
+                        opacity: 1,
+                        y: 0,
+                        duration: 0.8,
+                        ease: 'power3.out',
+                        scrollTrigger: {
+                            trigger: el,
+                            start: 'top 85%',
+                            toggleActions: 'play none none none',
+                        },
+                        // Use transition-delay from style attribute if present
+                        delay: parseFloat(el.style.transitionDelay) || 0
+                    }
+                );
+            });
+
+            // --- Mobile Menu Toggle ---
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            mobileMenuButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                mobileMenu.classList.toggle('scale-y-0');
+                mobileMenu.classList.toggle('scale-y-100');
+            });
+            
+            // Close menu when clicking a link inside it or outside
+            document.addEventListener('click', (e) => {
+                 if (!mobileMenu.contains(e.target) && !mobileMenuButton.contains(e.target)) {
+                    mobileMenu.classList.add('scale-y-0');
+                    mobileMenu.classList.remove('scale-y-100');
+                 }
+            });
+
+            // --- Custom Cursor Movement ---
+            const cursorDot = document.getElementById('cursor-dot');
+            window.addEventListener('mousemove', e => {
+                cursorDot.style.transform = `translate(${e.clientX - 10}px, ${e.clientY - 10}px)`;
+            });
+
+        });
+    </script>
+</body>
+</html>

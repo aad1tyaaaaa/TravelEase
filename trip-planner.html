@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Plan My Trip - TravelEase</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #00f5d4;
+            --secondary-color: #9b5de5;
+            --dark-bg: #000000;
+            --light-bg: #1e293b;
+            --text-color: #f0f8ff;
+            --input-bg: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-color);
+            overflow: hidden;
+            display: flex;
+        }
+
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            outline: none;
+            z-index: 0;
+        }
+
+        .main-container {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-panel {
+            width: 50%;
+            padding: 40px;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            overflow-y: auto;
+            box-sizing: border-box;
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .itinerary-panel {
+            width: 50%;
+            padding: 40px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Form Styling */
+        #trip-form {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-step { display: none; }
+        .form-step.active { display: block; }
+        h1, h2 { text-align: center; }
+        h1 { font-size: 2.5rem; }
+        h2 { font-size: 1.8rem; opacity: 0.9; }
+        .input-group { margin-bottom: 25px; }
+        .input-group label { display: block; margin-bottom: 8px; font-weight: 600; }
+
+        .input-group input, .input-group select, .input-group textarea {
+            width: 100%;
+            padding: 12px;
+            background: var(--input-bg);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-color);
+            font-size: 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+        .input-group input:focus, .input-group select:focus, .input-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 10px rgba(0, 245, 212, 0.3);
+        }
+
+        .options-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; }
+        .option-item {
+            background: var(--input-bg);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .option-item:hover { background: rgba(0, 245, 212, 0.2); }
+        .option-item.selected {
+            background: var(--primary-color);
+            color: var(--dark-bg);
+            font-weight: 700;
+            border-color: var(--primary-color);
+        }
+
+        .form-navigation { display: flex; justify-content: space-between; margin-top: 30px; }
+        .nav-btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .prev-btn { background-color: var(--light-bg); color: var(--text-color); }
+        .next-btn, .submit-btn {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: var(--dark-bg);
+        }
+
+        .progress-bar { width: 100%; height: 10px; background-color: var(--light-bg); border-radius: 5px; margin: 30px 0; }
+        #progress-indicator {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+        
+        #itinerary-display {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            flex-grow: 1;
+        }
+        #itinerary-content h3 { color: var(--primary-color); border-bottom: 2px solid var(--primary-color); padding-bottom: 10px; }
+        .itinerary-item { margin-bottom: 15px; }
+        .itinerary-item strong { color: var(--text-color); opacity: 0.9; }
+        .itinerary-item span { color: var(--text-color); opacity: 0.7; }
+        #confirmation-screen { display: none; text-align: center; }
+
+        @media (max-width: 1024px) {
+            .main-container { flex-direction: column-reverse; }
+            .form-panel, .itinerary-panel { width: 100%; height: 50vh; border: none; }
+            .itinerary-panel { display: none; } /* Hide itinerary on mobile for simplicity */
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="main-container">
+        <div class="itinerary-panel">
+            <div id="itinerary-display">
+                <h2>Your Live Itinerary</h2>
+                <div id="itinerary-content">
+                    <p>Your trip details will appear here as you fill out the form.</p>
+                </div>
+            </div>
+            <div id="confirmation-screen">
+                <h2>Thank You!</h2>
+                <p>Your personalized trip plan has been generated. Happy travels!</p>
+            </div>
+        </div>
+        
+        <div class="form-panel">
+            <form id="trip-form">
+                <h1>Plan Your Next Adventure</h1>
+                <div class="progress-bar">
+                    <div id="progress-indicator"></div>
+                </div>
+
+                <div class="form-step active" data-step="1">
+                    <h2>Destination & Dates</h2>
+                    <div class="input-group">
+                        <label for="destination">Where do you want to go?</label>
+                        <input type="text" id="destination" placeholder="e.g., Paris, France" required>
+                    </div>
+                    <div class="input-group"><label for="start-date">Start Date</label><input type="date" id="start-date" required></div>
+                    <div class="input-group"><label for="end-date">End Date</label><input type="date" id="end-date" required></div>
+                </div>
+
+                <div class="form-step" data-step="2">
+                    <h2>Traveler Information</h2>
+                    <div class="input-group"><label for="travelers">Number of Travelers</label><input type="number" id="travelers" min="1" value="1" required></div>
+                    <div class="input-group">
+                        <label>Who are you traveling with?</label>
+                        <div class="options-grid" id="travel-companion">
+                            <div class="option-item" data-value="solo">Solo</div><div class="option-item" data-value="partner">Partner</div>
+                            <div class="option-item" data-value="family">Family</div><div class="option-item" data-value="friends">Friends</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-step" data-step="3">
+                    <h2>Your Interests</h2>
+                    <div class="input-group">
+                        <label>What do you enjoy? (Select up to 3)</label>
+                        <div class="options-grid" id="interests">
+                            <div class="option-item" data-value="adventure">Adventure</div><div class="option-item" data-value="relaxation">Relaxation</div>
+                            <div class="option-item" data-value="culture">Culture</div><div class="option-item" data-value="food">Food</div>
+                            <div class="option-item" data-value="nightlife">Nightlife</div><div class="option-item" data-value="shopping">Shopping</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-step" data-step="4">
+                    <h2>Budget</h2>
+                    <div class="input-group">
+                        <label for="budget">What's your approximate budget per person?</label>
+                        <select id="budget">
+                            <option value="economy">Economy ($)</option><option value="mid-range" selected>Mid-Range ($$)</option><option value="luxury">Luxury ($$$)</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="notes">Any other preferences?</label>
+                        <textarea id="notes" rows="4" placeholder="e.g., window seats, specific hotel chains, allergies"></textarea>
+                    </div>
+                </div>
+                
+                <div class="form-navigation">
+                    <button type="button" class="nav-btn prev-btn">Previous</button>
+                    <button type="button" class="nav-btn next-btn">Next</button>
+                    <button type="submit" class="nav-btn submit-btn" style="display: none;">Generate My Plan!</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    
+    <script>
+        // --- I. PROFESSIONAL THREE.JS EARTH BACKGROUND ---
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 15;
+        const renderer = new THREE.WebGLRenderer({
+            canvas: document.querySelector('#bg-canvas'),
+            antialias: true,
+        });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        // Lighting
+        const sunLight = new THREE.DirectionalLight(0xffffff, 1.5);
+        sunLight.position.set(-10, 5, 15);
+        scene.add(sunLight);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
+        scene.add(ambientLight);
+
+        // Texture Loader
+        const loader = new THREE.TextureLoader();
+
+        // Earth Group
+        const earthGroup = new THREE.Group();
+        scene.add(earthGroup);
+
+        // 1. Earth Sphere (Day/Night texture)
+        const earthGeometry = new THREE.SphereGeometry(5, 64, 64);
+        const earthMaterial = new THREE.MeshStandardMaterial({
+            map: loader.load('https://eoimages.gsfc.nasa.gov/images/imagerecords/73000/73909/world.topo.bathy.200412.3x5400x2700.jpg'),
+            metalness: 0.3,
+            roughness: 0.8,
+        });
+        const earth = new THREE.Mesh(earthGeometry, earthMaterial);
+        earthGroup.add(earth);
+
+        // 2. Clouds Layer
+        const cloudsGeometry = new THREE.SphereGeometry(5.1, 64, 64);
+        const cloudsMaterial = new THREE.MeshStandardMaterial({
+            map: loader.load('https://upload.wikimedia.org/wikipedia/commons/c/c5/Fair_Weather_Cloud_Map.png'),
+            transparent: true,
+            opacity: 0.6
+        });
+        const clouds = new THREE.Mesh(cloudsGeometry, cloudsMaterial);
+        earthGroup.add(clouds);
+
+        // 3. Atmospheric Glow
+        const atmosphereGeometry = new THREE.SphereGeometry(5.3, 64, 64);
+        const atmosphereMaterial = new THREE.ShaderMaterial({
+            vertexShader: `
+                varying vec3 vNormal;
+                void main() {
+                    vNormal = normalize(normalMatrix * normal);
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: `
+                varying vec3 vNormal;
+                void main() {
+                    float intensity = pow(0.6 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.0);
+                    gl_FragColor = vec4(0.3, 0.6, 1.0, 1.0) * intensity;
+                }
+            `,
+            blending: THREE.AdditiveBlending,
+            side: THREE.BackSide
+        });
+        const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
+        earthGroup.add(atmosphere);
+
+        // 4. Stars
+        const starGeometry = new THREE.BufferGeometry();
+        const starVertices = [];
+        for (let i = 0; i < 10000; i++) {
+            const x = (Math.random() - 0.5) * 2000;
+            const y = (Math.random() - 0.5) * 2000;
+            const z = (Math.random() - 0.5) * 2000;
+            starVertices.push(x, y, z);
+        }
+        starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
+        const starMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.5 });
+        const stars = new THREE.Points(starGeometry, starMaterial);
+        scene.add(stars);
+
+        // Animation Loop
+        function animate3D() {
+            requestAnimationFrame(animate3D);
+            earth.rotation.y += 0.0005;
+            clouds.rotation.y += 0.0006;
+            stars.rotation.y += 0.0001;
+            renderer.render(scene, camera);
+        }
+        animate3D();
+        
+        // Responsiveness
+        window.addEventListener('resize', () => {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+        });
+
+        // --- II. FORM LOGIC & ANIMATIONS ---
+        // (This section is identical to the previous version and remains unchanged)
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('trip-form');
+            const steps = Array.from(document.querySelectorAll('.form-step'));
+            const nextBtn = document.querySelector('.next-btn');
+            const prevBtn = document.querySelector('.prev-btn');
+            const submitBtn = document.querySelector('.submit-btn');
+            const progressIndicator = document.getElementById('progress-indicator');
+            const itineraryContent = document.getElementById('itinerary-content');
+            
+            let currentStep = 0;
+            const tripData = {};
+
+            const updateTotalSteps = () => steps.length;
+
+            const updateProgressBar = () => {
+                const percent = ((currentStep + 1) / updateTotalSteps()) * 100;
+                anime({ targets: progressIndicator, width: percent + '%', easing: 'easeInOutExpo', duration: 600 });
+            };
+
+            const showStep = (stepIndex) => {
+                const currentStepElement = steps[currentStep];
+                const nextStepElement = steps[stepIndex];
+                
+                anime({
+                    targets: currentStepElement, opacity: [1, 0], translateX: [0, -30], duration: 400, easing: 'easeInOutQuad',
+                    complete: () => {
+                        currentStepElement.classList.remove('active');
+                        nextStepElement.classList.add('active');
+                        anime({ targets: nextStepElement, opacity: [0, 1], translateX: [30, 0], duration: 400, easing: 'easeInOutQuad' });
+                        currentStep = stepIndex;
+                        updateProgressBar();
+                        updateNavigation();
+                    }
+                });
+            };
+
+            const updateNavigation = () => {
+                prevBtn.style.display = currentStep === 0 ? 'none' : 'inline-block';
+                nextBtn.style.display = currentStep === steps.length - 1 ? 'none' : 'inline-block';
+                submitBtn.style.display = currentStep === steps.length - 1 ? 'inline-block' : 'none';
+            };
+
+            const updateItinerary = () => {
+                steps.forEach((step) => {
+                    step.querySelectorAll('input, select, textarea').forEach(input => { if (input.id) tripData[input.id] = input.value; });
+                    const selectedOptions = step.querySelectorAll('.option-item.selected');
+                    if (selectedOptions.length > 0) {
+                        const key = selectedOptions[0].parentElement.id;
+                        tripData[key] = Array.from(selectedOptions).map(el => el.dataset.value);
+                    }
+                });
+
+                let html = '<h3>Trip Summary</h3>';
+                if (tripData.destination) { html += `<div class="itinerary-item"><strong>Destination:</strong> <span>${tripData.destination}</span></div>`; }
+                if (tripData['start-date'] && tripData['end-date']) { html += `<div class="itinerary-item"><strong>Dates:</strong> <span>${tripData['start-date']} to ${tripData['end-date']}</span></div>`; }
+                if (tripData.travelers) { html += `<div class="itinerary-item"><strong>Travelers:</strong> <span>${tripData.travelers} (${(tripData['travel-companion'] || []).join(', ')})</span></div>`; }
+                if (tripData.interests) { html += `<div class="itinerary-item"><strong>Interests:</strong> <span>${tripData.interests.join(', ')}</span></div>`; }
+                if (tripData.budget) { html += `<div class="itinerary-item"><strong>Budget:</strong> <span>${tripData.budget}</span></div>`; }
+                
+                itineraryContent.innerHTML = html;
+                anime({ targets: '.itinerary-item', opacity: [0, 1], translateY: [20, 0], delay: anime.stagger(100) });
+            };
+
+            nextBtn.addEventListener('click', () => { if (currentStep < steps.length - 1) showStep(currentStep + 1); });
+            prevBtn.addEventListener('click', () => { if (currentStep > 0) showStep(currentStep - 1); });
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                updateItinerary();
+                
+                const mainContainer = document.querySelector('.main-container');
+                const itineraryPanel = document.querySelector('.itinerary-panel');
+                const formPanel = document.querySelector('.form-panel');
+                const itineraryDisplay = document.getElementById('itinerary-display');
+                const confirmationScreen = document.getElementById('confirmation-screen');
+
+                anime.timeline({ easing: 'easeInOutExpo' })
+                .add({ targets: formPanel, translateX: '100%', opacity: 0, duration: 800 })
+                .add({ targets: itineraryPanel, translateX: (window.innerWidth / 4), duration: 800}, '-=800')
+                .add({ targets: itineraryDisplay, scale: 0.9, opacity: 0, duration: 400, complete: () => itineraryDisplay.style.display = 'none' })
+                .add({ targets: confirmationScreen, opacity: [0, 1], translateY: [50, 0], begin: () => confirmationScreen.style.display = 'block' });
+
+                anime({ targets: camera.position, z: 10, duration: 2000, easing: 'easeOutQuint' });
+            });
+
+            document.querySelectorAll('.options-grid').forEach(grid => {
+                grid.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('option-item')) {
+                        const item = e.target;
+                        const parentId = item.parentElement.id;
+                        if (parentId === 'interests') {
+                            const selectedCount = item.parentElement.querySelectorAll('.selected').length;
+                            if (!item.classList.contains('selected') && selectedCount >= 3) {
+                                anime({ targets: item, translateX: [-5, 5, -5, 5, 0], duration: 400, easing: 'easeInOutSine' });
+                                return;
+                            }
+                            item.classList.toggle('selected');
+                        } else {
+                            item.parentElement.querySelectorAll('.option-item').forEach(el => el.classList.remove('selected'));
+                            item.classList.add('selected');
+                        }
+                        updateItinerary();
+                    }
+                });
+            });
+            
+            updateProgressBar();
+            updateNavigation();
+            form.addEventListener('change', updateItinerary);
+            form.addEventListener('keyup', updateItinerary);
+        });
+    </script>
+</body>
+</html>

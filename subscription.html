@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Subscribe to TravelEase Adventures</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --cyan: #00f5d4;
+            --magenta: #9b5de5;
+            --dark-blue: #0c0f1a;
+        }
+
+        /* --- GLOBAL STYLES --- */
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--dark-blue);
+            color: #fff;
+            overflow: hidden;
+        }
+
+        /* --- BACKGROUND CANVAS --- */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            outline: none;
+            z-index: 0;
+        }
+
+        /* --- LAYOUT: SPLIT SCREEN --- */
+        .page-container {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            z-index: 1; 
+        }
+
+        .planet-section-container {
+            flex: 1;
+            position: relative;
+        }
+
+        .form-section-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        /* --- SUBSCRIPTION FORM STYLING --- */
+        #subscription-form {
+            width: 100%;
+            max-width: 420px;
+            padding: 40px;
+            background: rgba(12, 15, 26, 0.5); 
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        h2 {
+            margin-top: 0;
+            font-size: 2.5rem;
+        }
+
+        p {
+            margin-bottom: 30px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 40px;
+        }
+
+        .input-group input {
+            box-sizing: border-box;
+            width: 100%;
+            padding: 10px 0;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.5);
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+            transition: border-bottom-color 0.3s ease;
+        }
+        
+        .input-group input:focus {
+             border-bottom-color: var(--cyan);
+        }
+
+        .input-group label {
+            position: absolute;
+            top: 10px;
+            left: 0;
+            color: rgba(255, 255, 255, 0.7);
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        .input-group input:focus ~ label,
+        .input-group input:valid ~ label {
+            top: -15px;
+            font-size: 0.8rem;
+            color: var(--cyan);
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(45deg, var(--cyan), var(--magenta));
+            color: #111;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 245, 212, 0.5);
+        }
+
+        /* --- RESPONSIVENESS --- */
+        @media (max-width: 900px) {
+            .page-container {
+                flex-direction: column;
+            }
+            .planet-section-container {
+                flex: 0.6; 
+            }
+            .form-section-container {
+                flex: 1;
+                align-items: flex-start;
+                padding-top: 1rem;
+            }
+             h2 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="page-container">
+        <div class="planet-section-container">
+            <img src="subsc.png" alt="Subscribe" style="width: 100%; height: auto; border-radius: 20px; margin-top: 150px;">
+        </div>
+
+        <div class="form-section-container">
+            <form id="subscription-form">
+                <h2>Join Our Journey</h2>
+                <p>Subscribe to get the best travel deals and inspirations delivered to your inbox.</p>
+                <div class="input-group">
+                    <input type="email" id="email" required autocomplete="off">
+                    <label for="email">Email Address</label>
+                </div>
+                <button type="submit">Subscribe ✈️</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    
+    <script>
+        // --- A. THREE.JS SCENE SETUP ---
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({
+            canvas: document.querySelector('#bg-canvas'),
+            antialias: true,
+        });
+
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        camera.position.setZ(30);
+
+        const planetGroup = new THREE.Group();
+        scene.add(planetGroup);
+
+        // --- 3D OBJECTS ---
+
+        // 1. Planet (Saturn)
+        const textureLoader = new THREE.TextureLoader();
+        const saturnTexture = textureLoader.load('https://upload.wikimedia.org/wikipedia/commons/1/19/CGI_Saturn_-_Mojo-Mojo.jpg');
+        const planetGeometry = new THREE.SphereGeometry(8, 64, 64);
+        const planetMaterial = new THREE.MeshStandardMaterial({
+            map: saturnTexture,
+            roughness: 0.9,
+        });
+        const planet = new THREE.Mesh(planetGeometry, planetMaterial);
+        planetGroup.add(planet);
+
+        // 2. Saturn's Rings (Textured)
+        const ringTexture = textureLoader.load('https://i.imgur.com/h2i3bLp.png'); // High-quality ring texture
+        const ringGeometry = new THREE.RingGeometry(11, 20, 128);
+        const pos = ringGeometry.attributes.position;
+        const v3 = new THREE.Vector3();
+        for (let i = 0; i < pos.count; i++){
+            v3.fromBufferAttribute(pos, i);
+            ringGeometry.attributes.uv.setXY(i, v3.length() < 15 ? 0 : 1, 1);
+        }
+        const ringMaterial = new THREE.MeshBasicMaterial({
+            map: ringTexture,
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: 0.9
+        });
+        const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+        ring.rotation.x = -Math.PI * 0.45; // Tilt the rings
+        ring.rotation.y = Math.PI * 0.1;
+        planetGroup.add(ring);
+
+        // 3. Stars (Full Screen)
+        const starGeometry = new THREE.BufferGeometry();
+        const starCount = 10000;
+        const starPosArray = new Float32Array(starCount * 3);
+        for (let i = 0; i < starCount * 3; i++) {
+            starPosArray[i] = (Math.random() - 0.5) * 500;
+        }
+        starGeometry.setAttribute('position', new THREE.BufferAttribute(starPosArray, 3));
+        const starMaterial = new THREE.PointsMaterial({ size: 0.2, color: 0xffffff });
+        const starMesh = new THREE.Points(starGeometry, starMaterial);
+        scene.add(starMesh);
+
+        // --- LIGHTING ---
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        const pointLight = new THREE.PointLight(0xffffff, 1);
+        pointLight.position.set(50, 20, 40);
+        scene.add(ambientLight, pointLight);
+        
+        // --- POSITIONING & RESPONSIVENESS ---
+        function updatePositions() {
+            const canvasWidth = window.innerWidth;
+            const xPos = canvasWidth > 900 ? -canvasWidth / 4 : 0;
+            planetGroup.position.x = xPos;
+            
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+        }
+        updatePositions();
+        window.addEventListener('resize', updatePositions);
+
+        // --- ANIMATION LOOP ---
+        const clock = new THREE.Clock();
+        function animate() {
+            const elapsedTime = clock.getElapsedTime();
+
+            // Animate Planet and Rings
+            planetGroup.rotation.y = 0.1 * elapsedTime;
+
+            // Horizontal Star Movement
+            starMesh.position.x += 0.05;
+            if (starMesh.position.x > 250) starMesh.position.x = -250;
+
+            renderer.render(scene, camera);
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        // --- B. FORM INTERACTION ---
+        document.getElementById('subscription-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const button = e.target.querySelector('button');
+
+            anime({
+                targets: button,
+                innerHTML: 'Subscribed! 🎉',
+                duration: 1500,
+                easing: 'easeInOutExpo',
+                complete: () => {
+                    console.log('Subscription submitted!');
+                }
+            });
+
+            anime({
+                targets: planetGroup.rotation,
+                y: `+=${Math.PI / 2}`,
+                duration: 3000,
+                easing: 'easeOutQuint'
+            });
+        });
+    </script>
+</body>
+</html>
