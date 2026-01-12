@@ -1,8 +1,9 @@
 # TravelEase ✈️
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/visionary-cocada-f4e3c0/deploy-status)](https://app.netlify.com/sites/visionary-cocada-f4e3c0/deploys)
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-Visit%20Site-blue)](https://visionary-cocada-f4e3c0.netlify.app/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Static Badge](https://img.shields.io/badge/Status-Active-brightgreen)](https://github.com)
+[![Status](https://img.shields.io/badge/Status-Active-success.svg)](https://github.com)
 
 Welcome to **TravelEase**, your ultimate companion for planning and booking unforgettable travel adventures. This static website offers a seamless, visually stunning experience to discover destinations, plan trips, and manage bookings—all in one place.
 
