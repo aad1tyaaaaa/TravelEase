@@ -1,9 +1,23 @@
 # TravelEase ✈️
 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/visionary-cocada-f4e3c0/deploy-status)](https://app.netlify.com/sites/visionary-cocada-f4e3c0/deploys)
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Visit%20Site-blue)](https://visionary-cocada-f4e3c0.netlify.app/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Status](https://img.shields.io/badge/Status-Active-success.svg)](https://github.com)
+<p align="center">
+  <a href="https://visionary-cocada-f4e3c0.netlify.app/">
+    <img src="https://img.shields.io/badge/Live%20Demo-Visit%20Site-00f5d4?style=for-the-badge&logo=netlify&logoColor=white" alt="Live Demo">
+  </a>
+  <img src="https://img.shields.io/badge/Status-Active-00f5d4?style=for-the-badge&logo=github&logoColor=white" alt="Status">
+  <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge&logo=opensourceinitiative&logoColor=white" alt="License">
+</p>
+
+<h3 align="center">🚀 Tech Stack</h3>
+<p align="center">
+  <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white" alt="HTML5">
+  <img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white" alt="CSS3">
+  <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" alt="JavaScript">
+  <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS">
+  <img src="https://img.shields.io/badge/Three.js-000000?style=for-the-badge&logo=three.js&logoColor=white" alt="Three.js">
+  <img src="https://img.shields.io/badge/GSAP-0AC775?style=for-the-badge&logo=greensock&logoColor=white" alt="GSAP">
+  <img src="https://img.shields.io/badge/Anime.js-000000?style=for-the-badge&logo=anime.js&logoColor=white" alt="Anime.js">
+</p>
 
 Welcome to **TravelEase**, your ultimate companion for planning and booking unforgettable travel adventures. This static website offers a seamless, visually stunning experience to discover destinations, plan trips, and manage bookings—all in one place.
 
