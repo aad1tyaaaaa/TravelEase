@@ -100,6 +100,7 @@ We'd like to thank the following contributors for their amazing work on TravelEa
 - **Aaditya Jaiswar** 👨‍💻 - Backend Specialist
 - **Shanish Jain** 👩‍🎨 - UI/UX Designer
 - **Masum Joglekar** 🧑‍🔧 - Frontend Developer
+- **Om Jadhav** 🧑‍🔧 - QA Tester 
 
 ## 📄 License
 
@@ -109,3 +110,4 @@ We'd like to thank the following contributors for their amazing work on TravelEa
 
 *Escape the ordinary—start your adventure today!* ✈️
 # TravelEase
+
